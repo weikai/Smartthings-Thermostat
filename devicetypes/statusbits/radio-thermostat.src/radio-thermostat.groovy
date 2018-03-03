@@ -680,9 +680,9 @@ private def writeTstatValue(name, value) {
 
     def json = "{\"${name}\": ${value}}"
     def hubActions = [
-        apiPost("/tstat", json),
-        delayHubAction(1500),
-        apiGet("/tstat")
+        apiPost("/tstat", json)
+        //delayHubAction(5000),
+        //apiGet("/tstat")
     ]
 
     return hubActions
