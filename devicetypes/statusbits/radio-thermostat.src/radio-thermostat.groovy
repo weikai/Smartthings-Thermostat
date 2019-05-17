@@ -679,20 +679,16 @@ private def writeTstatValue(name, value) {
     //log.debug "writeTstatValue(${name}, ${value})"
 
     def json = "{\"${name}\": ${value}}"
-    // weikai: don't refresh on setting temperature changes
-    if( name != "it_heat" && name != "it_cool"){
-        def hubActions = [
-            apiPost("/tstat", json),
-            delayHubAction(5000),
-            apiGet("/tstat")
-        ]
+    
+    def hubActions = [
+        apiPost("/tstat", json)
+        //delayHubAction(5000),
+        //apiGet("/tstat")
+    ]
+    if( name != "it_heat" && name != "it_cool" ){
+        hubActions.push(delayHubAction(5000))
+        hubActions.push(apiGet("/tstat"))
     }
-    else{
-    	def hubActions = [
-            apiPost("/tstat", json)
-        ]
-    }
-
     return hubActions
 }
 
