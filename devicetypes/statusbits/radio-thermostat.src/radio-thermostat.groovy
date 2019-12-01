@@ -21,6 +21,7 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *  Add device manually and set device network id to C0A814FA:0050
  *  --------------------------------------------------------------------------
  *
  *  Version 2.0.1 (12/20/2016)
@@ -46,11 +47,13 @@ preferences {
 
 metadata {
     definition (name:"Radio Thermostat", namespace:"statusbits", author:"geko@statusbits.com") {
-    	capability "Temperature Measurement"
-    	capability "Thermostat Cooling Setpoint"
-		capability "Thermostat Fan Mode"
-		capability "Thermostat Heating Setpoint"
+    	capability "Actuator"
+		capability "Temperature Measurement"
+		capability "Thermostat"
 		capability "Thermostat Mode"
+		capability "Thermostat Fan Mode"
+		capability "Thermostat Cooling Setpoint"
+		capability "Thermostat Heating Setpoint"
 		capability "Thermostat Operating State"
         
         /*
@@ -66,7 +69,7 @@ metadata {
         
 
         // Custom attributes
-        attribute "fanState", "string"      // Fan operating state. Values: "on", "off"
+        //attribute "fanState", "string"      // Fan operating state. Values: "on", "off"
         attribute "hold", "string"          // Target temperature Hold status. Values: "on", "off"
         attribute "connection", "string"    // Connection status string
 
@@ -75,31 +78,36 @@ metadata {
         command "holdOff"
         
         // Internal commands related to logic, only used by the tiles
+        /*
         command "temperatureUp"
         command "temperatureDown"
         
+        command "poll"
+        */
         
     }
 
     tiles{
-        multiAttributeTile(name:"thermostat", type:"thermostat", width:6, height:4) {
+        multiAttributeTile(name:"thermostat", type:"thermostat", width:6, height:4,canChangeIcon: true) {
 		    tileAttribute("device.temperature", key:"PRIMARY_CONTROL") {
 			    attributeState("default", label:'${currentValue}°', unit:"dF", defaultState:true,
                     backgroundColors:[
-                        [value:10, color:"#153591"],
-                        [value:15, color:"#1e9cbb"],
-                        [value:18, color:"#90d2a7"],
-                        [value:21, color:"#44b621"],
-                        [value:24, color:"#f1d801"],
-                        [value:27, color:"#d04e00"],
-                        [value:30, color:"#bc2323"],
-                        [value:31, color:"#153591"],
-                        [value:44, color:"#1e9cbb"],
-                        [value:59, color:"#90d2a7"],
-                        [value:74, color:"#44b621"],
-                        [value:84, color:"#f1d801"],
-                        [value:95, color:"#d04e00"],
-                        [value:96, color:"#bc2323"]
+                    	// Celsius
+						[value: 0, color: "#153591"],
+						[value: 7, color: "#1e9cbb"],
+						[value: 15, color: "#90d2a7"],
+						[value: 23, color: "#44b621"],
+						[value: 28, color: "#f1d801"],
+						[value: 35, color: "#d04e00"],
+						[value: 37, color: "#bc2323"],
+						// Fahrenheit
+						[value: 40, color: "#153591"],
+						[value: 44, color: "#1e9cbb"],
+						[value: 59, color: "#90d2a7"],
+						[value: 74, color: "#44b621"],
+						[value: 84, color: "#f1d801"],
+						[value: 95, color: "#d04e00"],
+						[value: 96, color: "#bc2323"]
                     ]
                 )
 	        }
@@ -113,34 +121,34 @@ metadata {
 				attributeState("cooling", backgroundColor:"#269bd2")
 			}
 			tileAttribute("device.thermostatMode", key:"THERMOSTAT_MODE") {
+            	attributeState("off", action: "setThermostatMode", label: "Off", icon: "st.thermostat.heating-cooling-off")
+				attributeState("cool", action: "setThermostatMode", label: "Cool", icon: "st.thermostat.cool")
+				attributeState("heat", action: "setThermostatMode", label: "Heat", icon: "st.thermostat.heat")
+				attributeState("auto", action: "setThermostatMode", label: "Auto", icon: "st.tesla.tesla-hvac")
+            	/*
 				attributeState("off", label:'${name}', defaultState:true)
 				attributeState("heat", label:'${name}')
 				attributeState("cool", label:'${name}')
 				attributeState("auto", label:'${name}')
+                */
 			}
+            tileAttribute("device.heatingSetpoint", key: "HEATING_SETPOINT") {
+				attributeState("default", label: '${currentValue}', unit: "dF", defaultState: true)
+			}
+			tileAttribute("device.coolingSetpoint", key: "COOLING_SETPOINT") {
+				attributeState("default", label: '${currentValue}', unit: "dF", defaultState: true)
+			}
+            /*
 			tileAttribute("device.heatingSetpoint", key:"HEATING_SETPOINT") {
 				attributeState("heatingSetpoint", label:'${currentValue}', unit:"dF", defaultState:true)
 			}
 			tileAttribute("device.coolingSetpoint", key:"COOLING_SETPOINT") {
 				attributeState("heatingSetpoint", label:'${currentValue}', unit:"dF", defaultState:true)
 			}
+            */
         }
         
-        
-        controlTile("heatingSetpoint", "device.heatingSetpoint", "slider",
-				sliderType: "HEATING",
-				debouncePeriod: 1500,
-				range: "device.heatingSetpointRange",
-				width: 2, height: 2) {
-					state "default", action:"setHeatingSetpoint", label:'${currentValue}', backgroundColor: "#E86D13"
-				}
-		controlTile("coolingSetpoint", "device.coolingSetpoint", "slider",
-				sliderType: "COOLING",
-				debouncePeriod: 1500,
-				range: "device.coolingSetpointRange",
-				width: 2, height: 2) {
-					state "default", action:"setCoolingSetpoint", label:'${currentValue}', backgroundColor: "#00A0DC"
-				}
+        /*
 
         standardTile("modeHeat", "device.thermostatMode", width:2, height:2) {
             state "default", label:'Heat', icon:"st.thermostat.heat", backgroundColor:"#FFFFFF", action:"thermostat.heat", defaultState:true
@@ -173,6 +181,33 @@ metadata {
             state "connected", label:'Connected', icon:"st.secondary.refresh", backgroundColor:"#44b621", action:"refresh.refresh"
             state "disconnected", label:'Connected', icon:"st.secondary.refresh", backgroundColor:"#ea5462", action:"refresh.refresh"
         }
+        */
+        controlTile("thermostatMode", "device.thermostatMode", "enum", width: 2 , height: 2) {
+			state("off", action: "setThermostatMode", label: 'Off', icon: "st.thermostat.heating-cooling-off")
+			state("cool", action: "setThermostatMode", label: 'Cool', icon: "st.thermostat.cool")
+			state("heat", action: "setThermostatMode", label: 'Heat', icon: "st.thermostat.heat")
+			state("auto", action: "setThermostatMode", label: 'Auto', icon: "st.tesla.tesla-hvac")		
+		}
+        
+        controlTile("heatingSetpoint", "device.heatingSetpoint", "slider",
+				sliderType: "HEATING",
+				debouncePeriod: 1500,
+				range: "device.heatingSetpointRange",
+				width: 2, height: 2) {
+					state "default", action:"setHeatingSetpoint", label:'${currentValue}', backgroundColor: "#E86D13"
+				}
+		controlTile("coolingSetpoint", "device.coolingSetpoint", "slider",
+				sliderType: "COOLING",
+				debouncePeriod: 1500,
+				range: "device.coolingSetpointRange",
+				width: 2, height: 2) {
+					state "default", action:"setCoolingSetpoint", label:'${currentValue}', backgroundColor: "#00A0DC"
+				}
+                
+        controlTile("thermostatFanMode", "device.thermostatFanMode", "enum", width: 2 , height: 2, supportedStates: "device.supportedThermostatFanModes") {
+			state "auto", action: "setThermostatFanMode", label: 'Auto', icon: "st.thermostat.fan-auto"
+			state "on",	action: "setThermostatFanMode", label: 'On', icon: "st.thermostat.fan-on"
+		}
 
         valueTile("temperature", "device.temperature", width:2, height:2) {
             state "temperature", label:'${currentValue}°', unit:"dF",
@@ -195,11 +230,19 @@ metadata {
         }
 
         main("temperature")
+        /*
         details([
             "thermostat",
             "modeHeat", "modeCool", "modeAuto",
-            "fanMode", "hold", "refresh"
+            "fanMode", "hold", "refresh","thermostatMode", "heatingSetpoint", "coolingSetpoint","thermostatFanMode"
         ])
+        */
+        
+        details([
+            "thermostat",
+            "thermostatMode", "heatingSetpoint", "coolingSetpoint","thermostatFanMode"
+        ])
+        
     }
 
     simulator {
@@ -227,7 +270,7 @@ def installed() {
     //log.debug "installed()"
 
     printTitle()
-
+	
     // Initialize attributes to default values (Issue #18)
     sendEvent([name:'temperature', value:'70', displayed:false])
     sendEvent([name:'heatingSetpoint', value:'70', displayed:false])
@@ -238,6 +281,14 @@ def installed() {
     sendEvent([name:'fanState', value:'off', displayed:false])
     sendEvent([name:'hold', value:'off', displayed:false])
     sendEvent([name:'connection', value:'disconnected', displayed:false])
+    
+    sendEvent(name: "coolingSetpointRange", value: coolingSetpointRange, displayed: false)
+	sendEvent(name: "heatingSetpointRange", value: heatingSetpointRange, displayed: false)
+    
+    
+	state.supportedFanModes = ["on", "auto"]
+	sendEvent(name: "supportedThermostatFanModes", value: state.supportedFanModes, displayed: false)
+    
 }
 
 def updated() {
@@ -412,13 +463,20 @@ def setThermostatFanMode(fanMode) {
     //log.debug "setThermostatFanMode(${fanMode})"
 
     switch (fanMode) {
-    case "auto":        return fanAuto()
-    case "circulate":   return fanCirculate()
-    case "on":          return fanOn()
+    case "auto":
+    	fanAuto()
+        break
+    /*
+    case "circulate":
+    	fanCirculate()
+        break
+    */
+    case "on":
+        fanOn()
+        break;
     }
 
-    log.error "Invalid fan mode: \'${fanMode}\'"
-    return null
+    log.error "Invalid fan mode: \'${fanMode}\'"    
 }
 
 // thermostat.fanAuto
@@ -434,13 +492,14 @@ def fanAuto() {
 
     return writeTstatValue('fmode', 0)
 }
-
+/*
 // thermostat.fanCirculate
 def fanCirculate() {
     //log.debug "fanCirculate()")
     log.warn "Fan 'Circulate' mode is not supported"
     return null
 }
+*/
 
 // thermostat.fanOn
 def fanOn() {
@@ -949,3 +1008,10 @@ private def STATE() {
     log.trace "connection: ${device.currentValue("connection")}"
 }
 
+
+def getCoolingSetpointRange() {
+	(getTemperatureScale() == "C") ? [10, 35] : [50, 95]
+}
+def getHeatingSetpointRange() {
+	(getTemperatureScale() == "C") ? [7.22, 32.22] : [45, 90]
+}
