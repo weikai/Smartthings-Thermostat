@@ -46,25 +46,42 @@ preferences {
 
 metadata {
     definition (name:"Radio Thermostat", namespace:"statusbits", author:"geko@statusbits.com") {
+    	capability "Temperature Measurement"
+    	capability "Thermostat Cooling Setpoint"
+		capability "Thermostat Fan Mode"
+		capability "Thermostat Heating Setpoint"
+		capability "Thermostat Mode"
+		capability "Thermostat Operating State"
+        
+        /*
         capability "Thermostat"
         capability "Temperature Measurement"
+        */
         capability "Sensor"
         capability "Refresh"
         capability "Polling"
+        
+        
+        
+        
 
         // Custom attributes
         attribute "fanState", "string"      // Fan operating state. Values: "on", "off"
         attribute "hold", "string"          // Target temperature Hold status. Values: "on", "off"
         attribute "connection", "string"    // Connection status string
 
-        // Custom commands
-        command "temperatureUp"
-        command "temperatureDown"
+        // Custom commands        
         command "holdOn"
         command "holdOff"
+        
+        // Internal commands related to logic, only used by the tiles
+        command "temperatureUp"
+        command "temperatureDown"
+        
+        
     }
 
-    tiles(scale:2) {
+    tiles{
         multiAttributeTile(name:"thermostat", type:"thermostat", width:6, height:4) {
 		    tileAttribute("device.temperature", key:"PRIMARY_CONTROL") {
 			    attributeState("default", label:'${currentValue}°', unit:"dF", defaultState:true,
@@ -108,25 +125,41 @@ metadata {
 				attributeState("heatingSetpoint", label:'${currentValue}', unit:"dF", defaultState:true)
 			}
         }
+        
+        
+        controlTile("heatingSetpoint", "device.heatingSetpoint", "slider",
+				sliderType: "HEATING",
+				debouncePeriod: 1500,
+				range: "device.heatingSetpointRange",
+				width: 2, height: 2) {
+					state "default", action:"setHeatingSetpoint", label:'${currentValue}', backgroundColor: "#E86D13"
+				}
+		controlTile("coolingSetpoint", "device.coolingSetpoint", "slider",
+				sliderType: "COOLING",
+				debouncePeriod: 1500,
+				range: "device.coolingSetpointRange",
+				width: 2, height: 2) {
+					state "default", action:"setCoolingSetpoint", label:'${currentValue}', backgroundColor: "#00A0DC"
+				}
 
         standardTile("modeHeat", "device.thermostatMode", width:2, height:2) {
-            state "default", label:'', icon:"st.thermostat.heat", backgroundColor:"#FFFFFF", action:"thermostat.heat", defaultState:true
-            state "heat", label:'', icon:"st.thermostat.heat", backgroundColor:"#FFCC99", action:"thermostat.off"
+            state "default", label:'Heat', icon:"st.thermostat.heat", backgroundColor:"#FFFFFF", action:"thermostat.heat", defaultState:true
+            state "heat", label:'Heat', icon:"st.thermostat.heat", backgroundColor:"#FFCC99", action:"thermostat.off"
         }
 
         standardTile("modeCool", "device.thermostatMode", width:2, height:2) {
-            state "default", label:'', icon:"st.thermostat.cool", backgroundColor:"#FFFFFF", action:"thermostat.cool", defaultState:true
-            state "cool", label:'', icon:"st.thermostat.cool", backgroundColor:"#99CCFF", action:"thermostat.off"
+            state "default", label:'Cool', icon:"st.thermostat.cool", backgroundColor:"#FFFFFF", action:"thermostat.cool", defaultState:true
+            state "cool", label:'Cool', icon:"st.thermostat.cool", backgroundColor:"#99CCFF", action:"thermostat.off"
         }
 
         standardTile("modeAuto", "device.thermostatMode", width:2, height:2) {
-            state "default", label:'', icon:"st.thermostat.auto", backgroundColor:"#FFFFFF", action:"thermostat.auto", defaultState:true
-            state "auto", label:'', icon:"st.thermostat.auto", backgroundColor:"#99FF99", action:"thermostat.off"
+            state "default", label:'Auto', icon:"st.thermostat.auto", backgroundColor:"#FFFFFF", action:"thermostat.auto", defaultState:true
+            state "auto", label:'Auto', icon:"st.thermostat.auto", backgroundColor:"#99FF99", action:"thermostat.off"
         }
 
         standardTile("fanMode", "device.thermostatFanMode", width:2, height:2) {
-            state "auto", label:'', icon:"st.thermostat.fan-auto", backgroundColor:"#FFFFFF", action:"thermostat.fanOn", defaultState:true
-            state "on", label:'', icon:"st.thermostat.fan-on", backgroundColor:"#A4FCA6", action:"thermostat.fanAuto"
+            state "auto", label:'Fan', icon:"st.thermostat.fan-auto", backgroundColor:"#FFFFFF", action:"thermostat.fanOn", defaultState:true
+            state "on", label:'Fan', icon:"st.thermostat.fan-on", backgroundColor:"#A4FCA6", action:"thermostat.fanAuto"
         }
 
         standardTile("hold", "device.hold", width:2, height:2) {
@@ -136,9 +169,9 @@ metadata {
 
         standardTile("refresh", "device.connection", width:2, height:2, decoration:"flat") {
         //standardTile("refresh", "device.connection", width:2, height:2) {
-            state "default", icon:"st.secondary.refresh", backgroundColor:"#FFFFFF", action:"refresh.refresh", defaultState:true
-            state "connected", icon:"st.secondary.refresh", backgroundColor:"#44b621", action:"refresh.refresh"
-            state "disconnected", icon:"st.secondary.refresh", backgroundColor:"#ea5462", action:"refresh.refresh"
+            state "default", label:'Connected', icon:"st.secondary.refresh", backgroundColor:"#FFFFFF", action:"refresh.refresh", defaultState:true
+            state "connected", label:'Connected', icon:"st.secondary.refresh", backgroundColor:"#44b621", action:"refresh.refresh"
+            state "disconnected", label:'Connected', icon:"st.secondary.refresh", backgroundColor:"#ea5462", action:"refresh.refresh"
         }
 
         valueTile("temperature", "device.temperature", width:2, height:2) {
@@ -915,3 +948,4 @@ private def STATE() {
     log.trace "hold: ${device.currentValue("hold")}"
     log.trace "connection: ${device.currentValue("connection")}"
 }
+
