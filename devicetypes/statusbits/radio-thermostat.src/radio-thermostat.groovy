@@ -47,9 +47,9 @@ preferences {
 
 metadata {
     definition (name:"Radio Thermostat", namespace:"statusbits", author:"geko@statusbits.com") {
-    	capability "Actuator"
+    	//capability "Actuator"
 		capability "Temperature Measurement"
-		capability "Thermostat"
+		//capability "Thermostat"
 		capability "Thermostat Mode"
 		capability "Thermostat Fan Mode"
 		capability "Thermostat Cooling Setpoint"
@@ -111,33 +111,39 @@ metadata {
                     ]
                 )
 	        }
+            /*
 			tileAttribute("device.temperature", key:"VALUE_CONTROL") {
 				attributeState("VALUE_UP", action:"temperatureUp")
 				attributeState("VALUE_DOWN", action:"temperatureDown")
 			}
+            */
 			tileAttribute("device.thermostatOperatingState", key:"OPERATING_STATE") {
 				attributeState("idle", backgroundColor:"#44b621", defaultState:true)
 				attributeState("heating", backgroundColor:"#ea5462")
 				attributeState("cooling", backgroundColor:"#269bd2")
 			}
+            
 			tileAttribute("device.thermostatMode", key:"THERMOSTAT_MODE") {
+            	/*
             	attributeState("off", action: "setThermostatMode", label: "Off", icon: "st.thermostat.heating-cooling-off")
 				attributeState("cool", action: "setThermostatMode", label: "Cool", icon: "st.thermostat.cool")
 				attributeState("heat", action: "setThermostatMode", label: "Heat", icon: "st.thermostat.heat")
 				attributeState("auto", action: "setThermostatMode", label: "Auto", icon: "st.tesla.tesla-hvac")
-            	/*
+                */
+            	
 				attributeState("off", label:'${name}', defaultState:true)
 				attributeState("heat", label:'${name}')
 				attributeState("cool", label:'${name}')
-				attributeState("auto", label:'${name}')
-                */
+				attributeState("auto", label:'${name}')                
 			}
+            /*
             tileAttribute("device.heatingSetpoint", key: "HEATING_SETPOINT") {
 				attributeState("default", label: '${currentValue}', unit: "dF", defaultState: true)
 			}
 			tileAttribute("device.coolingSetpoint", key: "COOLING_SETPOINT") {
 				attributeState("default", label: '${currentValue}', unit: "dF", defaultState: true)
 			}
+            */
             /*
 			tileAttribute("device.heatingSetpoint", key:"HEATING_SETPOINT") {
 				attributeState("heatingSetpoint", label:'${currentValue}', unit:"dF", defaultState:true)
