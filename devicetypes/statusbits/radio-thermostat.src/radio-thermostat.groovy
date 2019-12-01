@@ -204,7 +204,7 @@ metadata {
 					state "default", action:"setCoolingSetpoint", label:'${currentValue}', backgroundColor: "#00A0DC"
 				}
                 
-        controlTile("thermostatFanMode", "device.thermostatFanMode", "enum", width: 2 , height: 2, supportedStates: "device.supportedThermostatFanModes") {
+        controlTile("thermostatFanMode", "device.thermostatFanMode", "enum", width: 2 , height: 2) {
 			state "auto", action: "setThermostatFanMode", label: 'Auto', icon: "st.thermostat.fan-auto"
 			state "on",	action: "setThermostatFanMode", label: 'On', icon: "st.thermostat.fan-on"
 		}
@@ -463,20 +463,15 @@ def setThermostatFanMode(fanMode) {
     //log.debug "setThermostatFanMode(${fanMode})"
 
     switch (fanMode) {
-    case "auto":
-    	fanAuto()
-        break
+    case "auto": return fanAuto()
     /*
-    case "circulate":
-    	fanCirculate()
-        break
+    case "circulate": return fanCirculate()
     */
-    case "on":
-        fanOn()
-        break;
+    case "on": return fanOn()
     }
 
     log.error "Invalid fan mode: \'${fanMode}\'"    
+    return null
 }
 
 // thermostat.fanAuto
